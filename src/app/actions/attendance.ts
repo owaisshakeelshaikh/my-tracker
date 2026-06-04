@@ -6,8 +6,8 @@ import { startOfDay, endOfDay } from 'date-fns'
 
 export async function getAttendanceByMonth(year: number, month: number) {
   try {
-    const startDate = new Date(Date.UTC(year, month, 1))
-    const endDate = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999))
+    const startDate = new Date(year, month, 1)
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59)
 
     const attendances = await prisma.attendance.findMany({
       where: {
@@ -32,7 +32,7 @@ export async function getAttendanceByDate(date: Date) {
   try {
     const attendance = await prisma.attendance.findUnique({
       where: {
-        date: new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())),
+        date: startOfDay(date),
       },
     })
 
@@ -45,33 +45,17 @@ export async function getAttendanceByDate(date: Date) {
 
 export async function createAttendance(formData: FormData) {
   try {
-    const dateStr = formData.get('date') as string
-    const date = new Date(dateStr)
+    const date = new Date(formData.get('date') as string)
     const inTimeStr = formData.get('inTime') as string
     const outTimeStr = formData.get('outTime') as string
     const status = formData.get('status') as string
     const remarks = formData.get('remarks') as string || null
 
-    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-
-    const inTime = inTimeStr ? (() => {
-      const [hours, minutes] = inTimeStr.split(':').map(Number)
-      const timeDate = new Date(utcDate)
-      timeDate.setUTCHours(hours, minutes, 0, 0)
-      return timeDate
-    })() : null
-    const outTime = outTimeStr ? (() => {
-      const [hours, minutes] = outTimeStr.split(':').map(Number)
-      const timeDate = new Date(utcDate)
-      timeDate.setUTCHours(hours, minutes, 0, 0)
-      return timeDate
-    })() : null
-
     const attendance = await prisma.attendance.create({
       data: {
-        date: utcDate,
-        inTime,
-        outTime,
+        date: startOfDay(date),
+        inTime: inTimeStr || null,
+        outTime: outTimeStr || null,
         status,
         remarks,
       },
@@ -90,34 +74,18 @@ export async function createAttendance(formData: FormData) {
 
 export async function updateAttendance(id: number, formData: FormData) {
   try {
-    const dateStr = formData.get('date') as string
-    const date = new Date(dateStr)
+    const date = new Date(formData.get('date') as string)
     const inTimeStr = formData.get('inTime') as string
     const outTimeStr = formData.get('outTime') as string
     const status = formData.get('status') as string
     const remarks = formData.get('remarks') as string || null
 
-    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-
-    const inTime = inTimeStr ? (() => {
-      const [hours, minutes] = inTimeStr.split(':').map(Number)
-      const timeDate = new Date(utcDate)
-      timeDate.setUTCHours(hours, minutes, 0, 0)
-      return timeDate
-    })() : null
-    const outTime = outTimeStr ? (() => {
-      const [hours, minutes] = outTimeStr.split(':').map(Number)
-      const timeDate = new Date(utcDate)
-      timeDate.setUTCHours(hours, minutes, 0, 0)
-      return timeDate
-    })() : null
-
     const attendance = await prisma.attendance.update({
       where: { id },
       data: {
-        date: utcDate,
-        inTime,
-        outTime,
+        date: startOfDay(date),
+        inTime: inTimeStr || null,
+        outTime: outTimeStr || null,
         status,
         remarks,
       },
@@ -158,25 +126,25 @@ export async function autoMarkWeeklyOff(year: number, month: number) {
       return { success: false, error: 'Settings not found' }
     }
 
-    const startDate = new Date(Date.UTC(year, month, 1))
-    const endDate = new Date(Date.UTC(year, month + 1, 0))
+    const startDate = new Date(year, month, 1)
+    const endDate = new Date(year, month + 1, 0)
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     const weeklyOffDay = weekDays.indexOf(settings.weeklyOff)
 
     let markedCount = 0
 
-    for (let day = 1; day <= endDate.getUTCDate(); day++) {
-      const currentDate = new Date(Date.UTC(year, month, day))
-
-      if (currentDate.getUTCDay() === weeklyOffDay) {
+    for (let day = 1; day <= endDate.getDate(); day++) {
+      const currentDate = new Date(year, month, day)
+      
+      if (currentDate.getDay() === weeklyOffDay) {
         const existing = await prisma.attendance.findUnique({
-          where: { date: currentDate },
+          where: { date: startOfDay(currentDate) },
         })
 
         if (!existing) {
           await prisma.attendance.create({
             data: {
-              date: currentDate,
+              date: startOfDay(currentDate),
               status: 'Holiday',
               remarks: 'Weekly Off',
             },

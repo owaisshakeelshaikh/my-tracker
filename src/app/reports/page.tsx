@@ -13,8 +13,8 @@ import { formatHours } from '@/lib/utils'
 interface Attendance {
   id: number
   date: Date
-  inTime: Date | null
-  outTime: Date | null
+  inTime: string | null
+  outTime: string | null
   status: string
   remarks: string | null
 }
@@ -38,9 +38,19 @@ export default function ReportsPage() {
     fetchAttendances()
   }, [fetchAttendances])
 
+  const formatTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number)
+    const date = new Date(0, 0, 0, hours, minutes)
+    return format(date, 'h:mm a')
+  }
+
   const calculateWorkedHours = (attendance: Attendance) => {
     if (!attendance.inTime || !attendance.outTime) return 0
-    const hours = (new Date(attendance.outTime).getTime() - new Date(attendance.inTime).getTime()) / (1000 * 60 * 60)
+    const [inHours, inMinutes] = attendance.inTime.split(':').map(Number)
+    const [outHours, outMinutes] = attendance.outTime.split(':').map(Number)
+    const inDate = new Date(0, 0, 0, inHours, inMinutes)
+    const outDate = new Date(0, 0, 0, outHours, outMinutes)
+    const hours = (outDate.getTime() - inDate.getTime()) / (1000 * 60 * 60)
     return hours
   }
 
@@ -48,8 +58,8 @@ export default function ReportsPage() {
     const headers = ['Date', 'In Time', 'Out Time', 'Status', 'Remarks', 'Worked Hours']
     const rows = attendances.map((a) => [
       format(new Date(a.date), 'yyyy-MM-dd'),
-      a.inTime ? format(new Date(a.inTime), 'h:mm a') : '-',
-      a.outTime ? format(new Date(a.outTime), 'h:mm a') : '-',
+      a.inTime ? formatTime(a.inTime) : '-',
+      a.outTime ? formatTime(a.outTime) : '-',
       a.status,
       a.remarks || '-',
       calculateWorkedHours(a),
@@ -67,8 +77,8 @@ export default function ReportsPage() {
   const exportToExcel = () => {
     const data = attendances.map((a) => ({
       Date: format(new Date(a.date), 'yyyy-MM-dd'),
-      'In Time': a.inTime ? format(new Date(a.inTime), 'HH:mm') : '-',
-      'Out Time': a.outTime ? format(new Date(a.outTime), 'HH:mm') : '-',
+      'In Time': a.inTime ? formatTime(a.inTime) : '-',
+      'Out Time': a.outTime ? formatTime(a.outTime) : '-',
       Status: a.status,
       Remarks: a.remarks || '-',
       'Worked Hours': calculateWorkedHours(a),
@@ -220,7 +230,7 @@ export default function ReportsPage() {
                             <div className="truncate">{attendance.status}</div>
                             {attendance.inTime && (
                               <div className="truncate">
-                                {format(new Date(attendance.inTime), 'h:mm a')}
+                                {formatTime(attendance.inTime)}
                               </div>
                             )}
                           </div>
@@ -257,10 +267,10 @@ export default function ReportsPage() {
                       <tr key={attendance.id} className="border-b">
                         <td className="p-2">{format(new Date(attendance.date), 'yyyy-MM-dd')}</td>
                         <td className="p-2">
-                          {attendance.inTime ? format(new Date(attendance.inTime), 'h:mm a') : '-'}
+                          {attendance.inTime ? formatTime(attendance.inTime) : '-'}
                         </td>
                         <td className="p-2">
-                          {attendance.outTime ? format(new Date(attendance.outTime), 'h:mm a') : '-'}
+                          {attendance.outTime ? formatTime(attendance.outTime) : '-'}
                         </td>
                         <td className="p-2">{attendance.status}</td>
                         <td className="p-2">{attendance.remarks || '-'}</td>

@@ -14,8 +14,8 @@ import { formatHours } from '@/lib/utils'
 interface Attendance {
   id: number
   date: Date
-  inTime: Date | null
-  outTime: Date | null
+  inTime: string | null
+  outTime: string | null
   status: string
   remarks: string | null
 }
@@ -91,8 +91,8 @@ export default function AttendancePage() {
     setEditingAttendance(attendance)
     setFormData({
       date: format(new Date(attendance.date), 'yyyy-MM-dd'),
-      inTime: attendance.inTime ? format(new Date(attendance.inTime), 'HH:mm') : '',
-      outTime: attendance.outTime ? format(new Date(attendance.outTime), 'HH:mm') : '',
+      inTime: attendance.inTime || '',
+      outTime: attendance.outTime || '',
       status: attendance.status,
       remarks: attendance.remarks || '',
     })
@@ -127,9 +127,19 @@ export default function AttendancePage() {
     setIsDialogOpen(true)
   }
 
+  const formatTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number)
+    const date = new Date(0, 0, 0, hours, minutes)
+    return format(date, 'h:mm a')
+  }
+
   const calculateWorkedHours = (attendance: Attendance) => {
     if (!attendance.inTime || !attendance.outTime) return 0
-    const hours = (new Date(attendance.outTime).getTime() - new Date(attendance.inTime).getTime()) / (1000 * 60 * 60)
+    const [inHours, inMinutes] = attendance.inTime.split(':').map(Number)
+    const [outHours, outMinutes] = attendance.outTime.split(':').map(Number)
+    const inDate = new Date(0, 0, 0, inHours, inMinutes)
+    const outDate = new Date(0, 0, 0, outHours, outMinutes)
+    const hours = (outDate.getTime() - inDate.getTime()) / (1000 * 60 * 60)
     return hours
   }
 
@@ -211,11 +221,11 @@ export default function AttendancePage() {
                   <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="truncate">In: {attendance.inTime ? format(new Date(attendance.inTime), 'h:mm a') : '-'}</span>
+                      <span className="truncate">In: {attendance.inTime ? formatTime(attendance.inTime) : '-'}</span>
                     </div>
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="truncate">Out: {attendance.outTime ? format(new Date(attendance.outTime), 'h:mm a') : '-'}</span>
+                      <span className="truncate">Out: {attendance.outTime ? formatTime(attendance.outTime) : '-'}</span>
                     </div>
                   </div>
                   
