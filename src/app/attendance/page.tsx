@@ -51,20 +51,18 @@ export default function AttendancePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const payload = {
       ...formData,
-      inTime: formData.inTime ? new Date(`${formData.date}T${formData.inTime}`) : null,
-      outTime: formData.outTime ? new Date(`${formData.date}T${formData.outTime}`) : null,
     }
 
     try {
-      const url = editingAttendance 
+      const url = editingAttendance
         ? `/api/attendance/${editingAttendance.id}`
         : '/api/attendance'
-      
+
       const method = editingAttendance ? 'PUT' : 'POST'
-      
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -188,16 +186,16 @@ export default function AttendancePage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3 sm:gap-4">
         {attendances.map((attendance) => (
           <Card key={attendance.id}>
-            <CardContent className="pt-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-semibold">{format(new Date(attendance.date), 'EEEE, MMMM d, yyyy')}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2">
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="font-semibold text-xs sm:text-sm truncate">{format(new Date(attendance.date), 'EEE, MMM d, yyyy')}</span>
+                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium flex-shrink-0 ${
                       attendance.status === 'Present' ? 'bg-green-100 text-green-800' :
                       attendance.status === 'Holiday' ? 'bg-blue-100 text-blue-800' :
                       attendance.status === 'Paid Leave' ? 'bg-purple-100 text-purple-800' :
@@ -209,32 +207,32 @@ export default function AttendancePage() {
                     </span>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>In: {attendance.inTime ? format(new Date(attendance.inTime), 'HH:mm') : '-'}</span>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="truncate">In: {attendance.inTime ? format(new Date(attendance.inTime), 'HH:mm') : '-'}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>Out: {attendance.outTime ? format(new Date(attendance.outTime), 'HH:mm') : '-'}</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="truncate">Out: {attendance.outTime ? format(new Date(attendance.outTime), 'HH:mm') : '-'}</span>
                     </div>
                   </div>
                   
                   {attendance.remarks && (
-                    <p className="text-sm text-muted-foreground mt-2">Remarks: {attendance.remarks}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 sm:mt-2 truncate">Remarks: {attendance.remarks}</p>
                   )}
                   
-                  <p className="text-sm font-medium mt-2">
+                  <p className="text-xs sm:text-sm font-medium mt-1.5 sm:mt-2">
                     Worked Hours: {calculateWorkedHours(attendance)}h
                   </p>
                 </div>
                 
-                <div className="flex gap-2">
-                  <Button variant="outline" size="icon" onClick={() => handleEdit(attendance)}>
-                    <Edit className="h-4 w-4" />
+                <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
+                  <Button variant="outline" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => handleEdit(attendance)}>
+                    <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
-                  <Button variant="outline" size="icon" onClick={() => handleDelete(attendance.id)}>
-                    <Trash2 className="h-4 w-4" />
+                  <Button variant="outline" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => handleDelete(attendance.id)}>
+                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </div>
               </div>
@@ -252,17 +250,17 @@ export default function AttendancePage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingAttendance ? 'Edit Attendance' : 'Add Attendance'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">{editingAttendance ? 'Edit Attendance' : 'Add Attendance'}</DialogTitle>
+            <DialogDescription className="text-sm sm:text-base">
               {editingAttendance ? 'Update your attendance record' : 'Add a new attendance record'}
             </DialogDescription>
           </DialogHeader>
           
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="date">Date</Label>
                   <Input
@@ -293,7 +291,7 @@ export default function AttendancePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="inTime">In Time</Label>
                   <Input
@@ -325,11 +323,11 @@ export default function AttendancePage() {
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" className="w-full sm:w-auto">
                 {editingAttendance ? 'Update' : 'Add'} Attendance
               </Button>
             </DialogFooter>

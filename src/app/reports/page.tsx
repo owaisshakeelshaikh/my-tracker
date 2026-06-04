@@ -179,53 +179,55 @@ export default function ReportsPage() {
         <TabsContent value="calendar">
           <Card>
             <CardHeader>
-              <CardTitle>Calendar - {format(new Date(selectedYear, selectedMonth), 'MMMM yyyy')}</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Calendar - {format(new Date(selectedYear, selectedMonth), 'MMMM yyyy')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                  <div key={day} className="font-semibold text-xs sm:text-sm p-1 sm:p-2">
-                    {day}
-                  </div>
-                ))}
-                {calendar.map((item, index) => {
-                  if (!item) {
-                    return <div key={index} className="p-1 sm:p-2" />
-                  }
-                  const { day, attendance } = item
-                  const statusColor = attendance
-                    ? attendance.status === 'Present'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : attendance.status === 'Holiday'
-                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                      : attendance.status === 'Paid Leave'
-                      ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                      : attendance.status === 'Unpaid Leave'
-                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      : attendance.status === 'WFH'
-                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                    : 'bg-gray-50 dark:bg-gray-900'
-
-                  return (
-                    <div
-                      key={index}
-                      className={`p-1 sm:p-2 rounded-lg border ${statusColor} min-h-[60px] sm:min-h-[80px]`}
-                    >
-                      <div className="font-semibold text-xs sm:text-sm">{day}</div>
-                      {attendance && (
-                        <div className="text-xs mt-1">
-                          <div className="truncate">{attendance.status}</div>
-                          {attendance.inTime && (
-                            <div className="truncate">
-                              {format(new Date(attendance.inTime), 'HH:mm')}
-                            </div>
-                          )}
-                        </div>
-                      )}
+              <div className="overflow-x-auto">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center min-w-[300px]">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                    <div key={day} className="font-semibold text-[10px] sm:text-xs p-1">
+                      {day}
                     </div>
-                  )
-                })}
+                  ))}
+                  {calendar.map((item, index) => {
+                    if (!item) {
+                      return <div key={index} className="p-1" />
+                    }
+                    const { day, attendance } = item
+                    const statusColor = attendance
+                      ? attendance.status === 'Present'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : attendance.status === 'Holiday'
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        : attendance.status === 'Paid Leave'
+                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                        : attendance.status === 'Unpaid Leave'
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        : attendance.status === 'WFH'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                      : 'bg-gray-50 dark:bg-gray-900'
+
+                    return (
+                      <div
+                        key={index}
+                        className={`p-1 rounded border ${statusColor} min-h-[50px] sm:min-h-[80px]`}
+                      >
+                        <div className="font-semibold text-[10px] sm:text-xs">{day}</div>
+                        {attendance && (
+                          <div className="text-[9px] sm:text-xs mt-0.5">
+                            <div className="truncate">{attendance.status}</div>
+                            {attendance.inTime && (
+                              <div className="truncate">
+                                {format(new Date(attendance.inTime), 'HH:mm')}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>
