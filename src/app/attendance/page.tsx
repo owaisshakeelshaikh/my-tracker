@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { format, startOfDay } from 'date-fns'
 import { Calendar, Clock, Edit, Trash2, Plus } from 'lucide-react'
+import { formatHours } from '@/lib/utils'
 
 interface Attendance {
   id: number
@@ -127,9 +128,9 @@ export default function AttendancePage() {
   }
 
   const calculateWorkedHours = (attendance: Attendance) => {
-    if (!attendance.inTime || !attendance.outTime) return '0.00'
+    if (!attendance.inTime || !attendance.outTime) return 0
     const hours = (new Date(attendance.outTime).getTime() - new Date(attendance.inTime).getTime()) / (1000 * 60 * 60)
-    return hours.toFixed(2)
+    return hours
   }
 
   return (
@@ -223,7 +224,7 @@ export default function AttendancePage() {
                   )}
                   
                   <p className="text-xs sm:text-sm font-medium mt-1.5 sm:mt-2">
-                    Worked Hours: {calculateWorkedHours(attendance)}h
+                    Worked Hours: {formatHours(calculateWorkedHours(attendance))}
                   </p>
                 </div>
                 
