@@ -45,7 +45,9 @@ export async function getAttendanceByDate(date: Date) {
 
 export async function createAttendance(formData: FormData) {
   try {
-    const date = new Date(formData.get('date') as string)
+    const dateStr = formData.get('date') as string
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
     const inTimeStr = formData.get('inTime') as string
     const outTimeStr = formData.get('outTime') as string
     const status = formData.get('status') as string
@@ -53,14 +55,12 @@ export async function createAttendance(formData: FormData) {
 
     const inTime = inTimeStr ? (() => {
       const [hours, minutes] = inTimeStr.split(':').map(Number)
-      const timeDate = new Date(date)
-      timeDate.setHours(hours, minutes, 0, 0)
+      const timeDate = new Date(year, month - 1, day, hours, minutes, 0, 0)
       return timeDate
     })() : null
     const outTime = outTimeStr ? (() => {
       const [hours, minutes] = outTimeStr.split(':').map(Number)
-      const timeDate = new Date(date)
-      timeDate.setHours(hours, minutes, 0, 0)
+      const timeDate = new Date(year, month - 1, day, hours, minutes, 0, 0)
       return timeDate
     })() : null
 
@@ -87,7 +87,9 @@ export async function createAttendance(formData: FormData) {
 
 export async function updateAttendance(id: number, formData: FormData) {
   try {
-    const date = new Date(formData.get('date') as string)
+    const dateStr = formData.get('date') as string
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
     const inTimeStr = formData.get('inTime') as string
     const outTimeStr = formData.get('outTime') as string
     const status = formData.get('status') as string
@@ -95,14 +97,12 @@ export async function updateAttendance(id: number, formData: FormData) {
 
     const inTime = inTimeStr ? (() => {
       const [hours, minutes] = inTimeStr.split(':').map(Number)
-      const timeDate = new Date(date)
-      timeDate.setHours(hours, minutes, 0, 0)
+      const timeDate = new Date(year, month - 1, day, hours, minutes, 0, 0)
       return timeDate
     })() : null
     const outTime = outTimeStr ? (() => {
       const [hours, minutes] = outTimeStr.split(':').map(Number)
-      const timeDate = new Date(date)
-      timeDate.setHours(hours, minutes, 0, 0)
+      const timeDate = new Date(year, month - 1, day, hours, minutes, 0, 0)
       return timeDate
     })() : null
 
