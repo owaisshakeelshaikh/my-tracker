@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { format } from 'date-fns'
 import { Download, FileSpreadsheet, FileText } from 'lucide-react'
 import * as XLSX from 'xlsx'
+import { formatHours } from '@/lib/utils'
 
 interface Attendance {
   id: number
@@ -38,9 +39,9 @@ export default function ReportsPage() {
   }, [fetchAttendances])
 
   const calculateWorkedHours = (attendance: Attendance) => {
-    if (!attendance.inTime || !attendance.outTime) return '0.00'
+    if (!attendance.inTime || !attendance.outTime) return 0
     const hours = (new Date(attendance.outTime).getTime() - new Date(attendance.inTime).getTime()) / (1000 * 60 * 60)
-    return hours.toFixed(2)
+    return hours
   }
 
   const exportToCSV = () => {
@@ -263,7 +264,7 @@ export default function ReportsPage() {
                         </td>
                         <td className="p-2">{attendance.status}</td>
                         <td className="p-2">{attendance.remarks || '-'}</td>
-                        <td className="p-2">{calculateWorkedHours(attendance)}h</td>
+                        <td className="p-2">{formatHours(calculateWorkedHours(attendance))}</td>
                       </tr>
                     ))}
                   </tbody>

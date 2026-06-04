@@ -14,7 +14,7 @@ export function getWorkingDaysInMonth(year: number, month: number, weeklyOff: st
   const date = new Date(year, month, 1)
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  
+
   let workingDays = 0
   for (let day = 1; day <= daysInMonth; day++) {
     const currentDate = new Date(year, month, day)
@@ -22,8 +22,12 @@ export function getWorkingDaysInMonth(year: number, month: number, weeklyOff: st
       workingDays++
     }
   }
-  
+
   return workingDays
+}
+
+export function getDaysInMonth(year: number, month: number): number {
+  return new Date(year, month + 1, 0).getDate()
 }
 
 export function calculateDailySalary(monthlySalary: number, workingDays: number): number {
@@ -107,8 +111,9 @@ export function calculateHoursLeft(totalWorkedHours: number, totalRequiredHours:
 
 export function calculateSalaryStats(stats: any, settings: Settings, year: number, month: number) {
   const workingDays = getWorkingDaysInMonth(year, month, settings.weeklyOff)
-  const hourlyRate = calculateHourlyRate(settings.monthlySalary, workingDays, settings.requiredHours)
-  const dailySalary = calculateDailySalary(settings.monthlySalary, workingDays)
+  const daysInMonth = getDaysInMonth(year, month)
+  const hourlyRate = calculateHourlyRate(settings.monthlySalary, daysInMonth, settings.requiredHours)
+  const dailySalary = calculateDailySalary(settings.monthlySalary, daysInMonth)
 
   const overtimeAmount = calculateOvertime(stats.extraHours, hourlyRate)
   const deductionAmount = calculateDeduction(stats.missingHours, hourlyRate) + (stats.unpaidLeave * dailySalary)
