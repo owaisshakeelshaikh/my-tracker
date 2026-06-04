@@ -45,30 +45,17 @@ export async function getAttendanceByDate(date: Date) {
 
 export async function createAttendance(formData: FormData) {
   try {
-    const dateStr = formData.get('date') as string
-    const [year, month, day] = dateStr.split('-').map(Number)
-    const date = new Date(year, month - 1, day)
+    const date = new Date(formData.get('date') as string)
     const inTimeStr = formData.get('inTime') as string
     const outTimeStr = formData.get('outTime') as string
     const status = formData.get('status') as string
     const remarks = formData.get('remarks') as string || null
 
-    const inTime = inTimeStr ? (() => {
-      const [hours, minutes] = inTimeStr.split(':').map(Number)
-      const timeDate = new Date(year, month - 1, day, hours, minutes, 0, 0)
-      return timeDate
-    })() : null
-    const outTime = outTimeStr ? (() => {
-      const [hours, minutes] = outTimeStr.split(':').map(Number)
-      const timeDate = new Date(year, month - 1, day, hours, minutes, 0, 0)
-      return timeDate
-    })() : null
-
     const attendance = await prisma.attendance.create({
       data: {
         date: startOfDay(date),
-        inTime,
-        outTime,
+        inTime: inTimeStr || null,
+        outTime: outTimeStr || null,
         status,
         remarks,
       },
@@ -87,31 +74,18 @@ export async function createAttendance(formData: FormData) {
 
 export async function updateAttendance(id: number, formData: FormData) {
   try {
-    const dateStr = formData.get('date') as string
-    const [year, month, day] = dateStr.split('-').map(Number)
-    const date = new Date(year, month - 1, day)
+    const date = new Date(formData.get('date') as string)
     const inTimeStr = formData.get('inTime') as string
     const outTimeStr = formData.get('outTime') as string
     const status = formData.get('status') as string
     const remarks = formData.get('remarks') as string || null
 
-    const inTime = inTimeStr ? (() => {
-      const [hours, minutes] = inTimeStr.split(':').map(Number)
-      const timeDate = new Date(year, month - 1, day, hours, minutes, 0, 0)
-      return timeDate
-    })() : null
-    const outTime = outTimeStr ? (() => {
-      const [hours, minutes] = outTimeStr.split(':').map(Number)
-      const timeDate = new Date(year, month - 1, day, hours, minutes, 0, 0)
-      return timeDate
-    })() : null
-
     const attendance = await prisma.attendance.update({
       where: { id },
       data: {
         date: startOfDay(date),
-        inTime,
-        outTime,
+        inTime: inTimeStr || null,
+        outTime: outTimeStr || null,
         status,
         remarks,
       },
