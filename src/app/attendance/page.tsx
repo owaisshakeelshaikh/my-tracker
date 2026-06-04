@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -35,11 +35,7 @@ export default function AttendancePage() {
 
   const statusOptions = ['Present', 'Holiday', 'Paid Leave', 'Unpaid Leave', 'WFH']
 
-  useEffect(() => {
-    fetchAttendances()
-  }, [selectedMonth, selectedYear])
-
-  const fetchAttendances = async () => {
+  const fetchAttendances = useCallback(async () => {
     try {
       const response = await fetch(`/api/attendance?month=${selectedMonth}&year=${selectedYear}`)
       const data = await response.json()
@@ -47,7 +43,11 @@ export default function AttendancePage() {
     } catch (error) {
       console.error('Error fetching attendances:', error)
     }
-  }
+  }, [selectedMonth, selectedYear])
+
+  useEffect(() => {
+    fetchAttendances()
+  }, [fetchAttendances])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -245,7 +245,7 @@ export default function AttendancePage() {
         {attendances.length === 0 && (
           <Card>
             <CardContent className="pt-6 text-center text-muted-foreground">
-              No attendance records for this month. Click "Quick Add Today" to add your first entry.
+              No attendance records for this month. Click &quot;Quick Add Today&quot; to add your first entry.
             </CardContent>
           </Card>
         )}

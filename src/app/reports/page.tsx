@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -23,11 +23,7 @@ export default function ReportsPage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
-  useEffect(() => {
-    fetchAttendances()
-  }, [selectedMonth, selectedYear])
-
-  const fetchAttendances = async () => {
+  const fetchAttendances = useCallback(async () => {
     try {
       const response = await fetch(`/api/attendance?month=${selectedMonth}&year=${selectedYear}`)
       const data = await response.json()
@@ -35,7 +31,11 @@ export default function ReportsPage() {
     } catch (error) {
       console.error('Error fetching attendances:', error)
     }
-  }
+  }, [selectedMonth, selectedYear])
+
+  useEffect(() => {
+    fetchAttendances()
+  }, [fetchAttendances])
 
   const calculateWorkedHours = (attendance: Attendance) => {
     if (!attendance.inTime || !attendance.outTime) return '0.00'
