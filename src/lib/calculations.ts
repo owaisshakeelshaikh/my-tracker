@@ -123,7 +123,7 @@ export function calculateSalaryStats(stats: any, settings: Settings, year: numbe
 
   const overtimeAmount = calculateOvertime(stats.extraHours, hourlyRate)
   const deductionAmount = calculateDeduction(stats.missingHours, hourlyRate) + (stats.unpaidLeave * dailySalary)
-  const payableSalary = calculatePayableSalary(settings.monthlySalary, overtimeAmount, deductionAmount)
+  const payableSalary = calculatePayableSalary(settings.monthlySalary, 0, deductionAmount)
 
   return {
     workingDays,
