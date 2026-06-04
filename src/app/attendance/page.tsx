@@ -135,10 +135,10 @@ export default function AttendancePage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Attendance</h1>
-        <Button onClick={handleQuickAddToday}>
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">Attendance</h1>
+        <Button onClick={handleQuickAddToday} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Quick Add Today
         </Button>
@@ -148,7 +148,7 @@ export default function AttendancePage() {
         <CardHeader>
           <CardTitle>Filter by Month</CardTitle>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <Label htmlFor="month">Month</Label>
             <Select
@@ -192,9 +192,9 @@ export default function AttendancePage() {
         {attendances.map((attendance) => (
           <Card key={attendance.id}>
             <CardContent className="pt-6">
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="font-semibold">{format(new Date(attendance.date), 'EEEE, MMMM d, yyyy')}</span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${

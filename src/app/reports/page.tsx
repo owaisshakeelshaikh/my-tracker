@@ -109,19 +109,19 @@ export default function ReportsPage() {
   const calendar = generateCalendar()
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Reports</h1>
-        <div className="flex gap-2">
-          <Button onClick={exportToCSV} variant="outline">
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">Reports</h1>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <Button onClick={exportToCSV} variant="outline" className="flex-1 sm:flex-none">
             <FileText className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <Button onClick={exportToExcel} variant="outline">
+          <Button onClick={exportToExcel} variant="outline" className="flex-1 sm:flex-none">
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             Export Excel
           </Button>
-          <Button onClick={printReport} variant="outline">
+          <Button onClick={printReport} variant="outline" className="flex-1 sm:flex-none">
             <Download className="mr-2 h-4 w-4" />
             Print
           </Button>
@@ -132,7 +132,7 @@ export default function ReportsPage() {
         <CardHeader>
           <CardTitle>Filter by Month</CardTitle>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <Select
               value={selectedMonth.toString()}
@@ -182,15 +182,15 @@ export default function ReportsPage() {
               <CardTitle>Calendar - {format(new Date(selectedYear, selectedMonth), 'MMMM yyyy')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-7 gap-2 text-center">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                  <div key={day} className="font-semibold text-sm p-2">
+                  <div key={day} className="font-semibold text-xs sm:text-sm p-1 sm:p-2">
                     {day}
                   </div>
                 ))}
                 {calendar.map((item, index) => {
                   if (!item) {
-                    return <div key={index} className="p-2" />
+                    return <div key={index} className="p-1 sm:p-2" />
                   }
                   const { day, attendance } = item
                   const statusColor = attendance
@@ -210,9 +210,9 @@ export default function ReportsPage() {
                   return (
                     <div
                       key={index}
-                      className={`p-2 rounded-lg border ${statusColor} min-h-[80px]`}
+                      className={`p-1 sm:p-2 rounded-lg border ${statusColor} min-h-[60px] sm:min-h-[80px]`}
                     >
-                      <div className="font-semibold text-sm">{day}</div>
+                      <div className="font-semibold text-xs sm:text-sm">{day}</div>
                       {attendance && (
                         <div className="text-xs mt-1">
                           <div className="truncate">{attendance.status}</div>

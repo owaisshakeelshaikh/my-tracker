@@ -35,8 +35,8 @@ export function DashboardContent({
   const [showSalary, setShowSalary] = useState(false)
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">
         Dashboard - {format(now, 'MMMM yyyy')}
       </h1>
 

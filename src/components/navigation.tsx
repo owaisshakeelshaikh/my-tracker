@@ -1,14 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Menu, X } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 export function Navigation() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -39,16 +41,49 @@ export function Navigation() {
             </div>
           </div>
           
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            >
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-4 w-4" />
+              ) : (
+                <Menu className="h-4 w-4" />
+              )}
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </div>
         </div>
+        
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t">
+            <div className="flex flex-col gap-2">
+              {navItems.map((item) => (
+                <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                  <Button
+                    variant={pathname === item.href ? 'default' : 'ghost'}
+                    className="w-full justify-start"
+                  >
+                    {item.label}
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   )
