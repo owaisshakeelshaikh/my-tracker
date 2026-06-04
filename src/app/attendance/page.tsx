@@ -211,11 +211,11 @@ export default function AttendancePage() {
                   <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="truncate">In: {attendance.inTime ? format(new Date(attendance.inTime), 'HH:mm') : '-'}</span>
+                      <span className="truncate">In: {attendance.inTime ? format(new Date(attendance.inTime), 'h:mm a') : '-'}</span>
                     </div>
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="truncate">Out: {attendance.outTime ? format(new Date(attendance.outTime), 'HH:mm') : '-'}</span>
+                      <span className="truncate">Out: {attendance.outTime ? format(new Date(attendance.outTime), 'h:mm a') : '-'}</span>
                     </div>
                   </div>
                   
