@@ -46,10 +46,13 @@ export async function getAttendanceByDate(date: Date) {
 export async function createAttendance(formData: FormData) {
   try {
     const date = new Date(formData.get('date') as string)
-    const inTime = formData.get('inTime') ? new Date(formData.get('inTime') as string) : null
-    const outTime = formData.get('outTime') ? new Date(formData.get('outTime') as string) : null
+    const inTimeStr = formData.get('inTime') as string
+    const outTimeStr = formData.get('outTime') as string
     const status = formData.get('status') as string
     const remarks = formData.get('remarks') as string || null
+
+    const inTime = inTimeStr ? new Date(`${formData.get('date')}T${inTimeStr}`) : null
+    const outTime = outTimeStr ? new Date(`${formData.get('date')}T${outTimeStr}`) : null
 
     const attendance = await prisma.attendance.create({
       data: {
@@ -64,7 +67,7 @@ export async function createAttendance(formData: FormData) {
     revalidatePath('/attendance')
     revalidatePath('/dashboard')
     revalidatePath('/reports')
-    
+
     return { success: true, attendance }
   } catch (error) {
     console.error('Error creating attendance:', error)
@@ -75,10 +78,13 @@ export async function createAttendance(formData: FormData) {
 export async function updateAttendance(id: number, formData: FormData) {
   try {
     const date = new Date(formData.get('date') as string)
-    const inTime = formData.get('inTime') ? new Date(formData.get('inTime') as string) : null
-    const outTime = formData.get('outTime') ? new Date(formData.get('outTime') as string) : null
+    const inTimeStr = formData.get('inTime') as string
+    const outTimeStr = formData.get('outTime') as string
     const status = formData.get('status') as string
     const remarks = formData.get('remarks') as string || null
+
+    const inTime = inTimeStr ? new Date(`${formData.get('date')}T${inTimeStr}`) : null
+    const outTime = outTimeStr ? new Date(`${formData.get('date')}T${outTimeStr}`) : null
 
     const attendance = await prisma.attendance.update({
       where: { id },
@@ -94,7 +100,7 @@ export async function updateAttendance(id: number, formData: FormData) {
     revalidatePath('/attendance')
     revalidatePath('/dashboard')
     revalidatePath('/reports')
-    
+
     return { success: true, attendance }
   } catch (error) {
     console.error('Error updating attendance:', error)

@@ -70,12 +70,12 @@ export function Navigation() {
         
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
                   <Button
                     variant={pathname === item.href ? 'default' : 'ghost'}
-                    className="w-full justify-start"
+                    className="w-full justify-start h-10"
                   >
                     {item.label}
                   </Button>
