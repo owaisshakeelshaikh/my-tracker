@@ -107,8 +107,8 @@ export function getMonthStats(attendances: Attendance[], settings: Settings) {
 }
 
 export function calculateTotalRequiredHours(year: number, month: number, settings: Settings): number {
-  const workingDays = getWorkingDaysInMonth(year, month, settings.weeklyOff)
-  return workingDays * settings.requiredHours
+  const daysInMonth = getDaysInMonth(year, month)
+  return daysInMonth * settings.requiredHours
 }
 
 export function calculateHoursLeft(totalWorkedHours: number, totalRequiredHours: number): number {
