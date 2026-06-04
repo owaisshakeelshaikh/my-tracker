@@ -51,8 +51,18 @@ export async function createAttendance(formData: FormData) {
     const status = formData.get('status') as string
     const remarks = formData.get('remarks') as string || null
 
-    const inTime = inTimeStr ? new Date(`${formData.get('date')}T${inTimeStr}`) : null
-    const outTime = outTimeStr ? new Date(`${formData.get('date')}T${outTimeStr}`) : null
+    const inTime = inTimeStr ? (() => {
+      const [hours, minutes] = inTimeStr.split(':').map(Number)
+      const timeDate = new Date(date)
+      timeDate.setHours(hours, minutes, 0, 0)
+      return timeDate
+    })() : null
+    const outTime = outTimeStr ? (() => {
+      const [hours, minutes] = outTimeStr.split(':').map(Number)
+      const timeDate = new Date(date)
+      timeDate.setHours(hours, minutes, 0, 0)
+      return timeDate
+    })() : null
 
     const attendance = await prisma.attendance.create({
       data: {
@@ -83,8 +93,18 @@ export async function updateAttendance(id: number, formData: FormData) {
     const status = formData.get('status') as string
     const remarks = formData.get('remarks') as string || null
 
-    const inTime = inTimeStr ? new Date(`${formData.get('date')}T${inTimeStr}`) : null
-    const outTime = outTimeStr ? new Date(`${formData.get('date')}T${outTimeStr}`) : null
+    const inTime = inTimeStr ? (() => {
+      const [hours, minutes] = inTimeStr.split(':').map(Number)
+      const timeDate = new Date(date)
+      timeDate.setHours(hours, minutes, 0, 0)
+      return timeDate
+    })() : null
+    const outTime = outTimeStr ? (() => {
+      const [hours, minutes] = outTimeStr.split(':').map(Number)
+      const timeDate = new Date(date)
+      timeDate.setHours(hours, minutes, 0, 0)
+      return timeDate
+    })() : null
 
     const attendance = await prisma.attendance.update({
       where: { id },

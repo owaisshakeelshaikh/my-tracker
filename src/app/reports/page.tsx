@@ -48,8 +48,8 @@ export default function ReportsPage() {
     const headers = ['Date', 'In Time', 'Out Time', 'Status', 'Remarks', 'Worked Hours']
     const rows = attendances.map((a) => [
       format(new Date(a.date), 'yyyy-MM-dd'),
-      a.inTime ? format(new Date(a.inTime), 'HH:mm') : '-',
-      a.outTime ? format(new Date(a.outTime), 'HH:mm') : '-',
+      a.inTime ? format(new Date(a.inTime), 'h:mm a') : '-',
+      a.outTime ? format(new Date(a.outTime), 'h:mm a') : '-',
       a.status,
       a.remarks || '-',
       calculateWorkedHours(a),
@@ -220,7 +220,7 @@ export default function ReportsPage() {
                             <div className="truncate">{attendance.status}</div>
                             {attendance.inTime && (
                               <div className="truncate">
-                                {format(new Date(attendance.inTime), 'HH:mm')}
+                                {format(new Date(attendance.inTime), 'h:mm a')}
                               </div>
                             )}
                           </div>
@@ -257,10 +257,10 @@ export default function ReportsPage() {
                       <tr key={attendance.id} className="border-b">
                         <td className="p-2">{format(new Date(attendance.date), 'yyyy-MM-dd')}</td>
                         <td className="p-2">
-                          {attendance.inTime ? format(new Date(attendance.inTime), 'HH:mm') : '-'}
+                          {attendance.inTime ? format(new Date(attendance.inTime), 'h:mm a') : '-'}
                         </td>
                         <td className="p-2">
-                          {attendance.outTime ? format(new Date(attendance.outTime), 'HH:mm') : '-'}
+                          {attendance.outTime ? format(new Date(attendance.outTime), 'h:mm a') : '-'}
                         </td>
                         <td className="p-2">{attendance.status}</td>
                         <td className="p-2">{attendance.remarks || '-'}</td>
