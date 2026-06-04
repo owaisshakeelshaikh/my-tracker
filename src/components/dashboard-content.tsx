@@ -139,10 +139,6 @@ export function DashboardContent({
                   <span className="font-semibold text-sm sm:text-base">{formatCurrency(salaryStats.hourlyRate, settings.currency)}/hr</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-muted-foreground">Overtime Earnings</span>
-                  <span className="font-semibold text-green-600 text-sm sm:text-base">+{formatCurrency(salaryStats.overtimeAmount, settings.currency)}</span>
-                </div>
-                <div className="flex justify-between items-center">
                   <span className="text-xs sm:text-sm text-muted-foreground">Deductions</span>
                   <span className="font-semibold text-red-600 text-sm sm:text-base">-{formatCurrency(salaryStats.deductionAmount, settings.currency)}</span>
                 </div>
