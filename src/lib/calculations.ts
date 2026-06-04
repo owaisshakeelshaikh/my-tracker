@@ -3,7 +3,7 @@ import { Settings, Attendance } from '@prisma/client'
 export function calculateWorkedHours(attendance: Attendance): number {
   if (!attendance.inTime || !attendance.outTime) return 0
   
-  return (attendance.outTime.getTime() - attendance.inTime.getTime()) / (1000 * 60 * 60)
+  return (new Date(attendance.outTime).getTime() - new Date(attendance.inTime).getTime()) / (1000 * 60 * 60)
 }
 
 export function calculateHourDifference(workedHours: number, requiredHours: number): number {
