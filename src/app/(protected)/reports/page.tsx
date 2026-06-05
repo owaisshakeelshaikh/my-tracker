@@ -28,6 +28,19 @@ export default function ReportsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
 
+  const autoMarkWeeklyOff = async () => {
+    try {
+      const today = new Date()
+      await fetch('/api/attendance/auto-mark-weekly-off', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ year: today.getFullYear(), month: today.getMonth() }),
+      })
+    } catch (error) {
+      console.error('Error auto-marking weekly off:', error)
+    }
+  }
+
   const fetchAttendances = useCallback(async () => {
     try {
       const response = await fetch(`/api/attendance?month=${selectedMonth}&year=${selectedYear}`)
@@ -39,6 +52,7 @@ export default function ReportsPage() {
   }, [selectedMonth, selectedYear])
 
   useEffect(() => {
+    autoMarkWeeklyOff()
     fetchAttendances()
   }, [fetchAttendances])
 
