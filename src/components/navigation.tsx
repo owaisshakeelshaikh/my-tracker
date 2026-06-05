@@ -4,8 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Moon, Sun, Menu, X } from 'lucide-react'
+import { Moon, Sun, Menu, X, LogOut } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { logout } from '@/app/actions/auth'
 
 export function Navigation() {
   const pathname = usePathname()
@@ -18,6 +19,10 @@ export function Navigation() {
     { href: '/reports', label: 'Reports' },
     { href: '/settings', label: 'Settings' },
   ]
+
+  const handleLogout = async () => {
+    await logout()
+  }
 
   return (
     <nav className="border-b bg-background">
@@ -55,6 +60,16 @@ export function Navigation() {
             <Button
               variant="outline"
               size="icon"
+              onClick={handleLogout}
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="sr-only">Logout</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="icon"
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
@@ -81,6 +96,17 @@ export function Navigation() {
                   </Button>
                 </Link>
               ))}
+              <Button
+                variant="ghost"
+                className="w-full justify-start h-10 text-destructive hover:text-destructive"
+                onClick={() => {
+                  handleLogout()
+                  setMobileMenuOpen(false)
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         )}
