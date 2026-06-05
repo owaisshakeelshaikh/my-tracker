@@ -126,37 +126,41 @@ export async function autoMarkWeeklyOff(year: number, month: number) {
       return { success: false, error: 'Settings not found' }
     }
 
-    const startDate = new Date(year, month, 1)
-    const endDate = new Date(year, month + 1, 0)
+    const today = new Date()
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     const weeklyOffDay = weekDays.indexOf(settings.weeklyOff)
 
     let markedCount = 0
 
-    for (let day = 1; day <= endDate.getDate(); day++) {
-      const currentDate = new Date(year, month, day)
+    // Check past 7 days for missed weekly offs
+    for (let i = 0; i <= 7; i++) {
+      const checkDate = new Date(today)
+      checkDate.setDate(today.getDate() - i)
       
-      if (currentDate.getDay() === weeklyOffDay) {
-        const existing = await prisma.attendance.findUnique({
-          where: { date: startOfDay(currentDate) },
-        })
-
-        if (!existing) {
+      if (checkDate.getDay() === weeklyOffDay) {
+        try {
           await prisma.attendance.create({
             data: {
-              date: startOfDay(currentDate),
+              date: startOfDay(checkDate),
               status: 'Holiday',
               remarks: 'Weekly Off',
             },
           })
           markedCount++
+        } catch (error: any) {
+          // Ignore unique constraint errors (record already exists)
+          if (error.code !== 'P2002') {
+            throw error
+          }
         }
       }
     }
 
-    revalidatePath('/attendance')
-    revalidatePath('/dashboard')
-    revalidatePath('/reports')
+    if (markedCount > 0) {
+      revalidatePath('/attendance')
+      revalidatePath('/dashboard')
+      revalidatePath('/reports')
+    }
     
     return { success: true, markedCount }
   } catch (error) {
@@ -225,5 +229,25 @@ export async function importDatabase(data: any) {
   } catch (error) {
     console.error('Error importing database:', error)
     return { success: false, error: 'Failed to import database' }
+  }
+}
+
+export async function deleteAutoMarkedWeeklyOffs() {
+  try {
+    const result = await prisma.attendance.deleteMany({
+      where: {
+        status: 'Holiday',
+        remarks: 'Weekly Off',
+      },
+    })
+
+    revalidatePath('/attendance')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+    
+    return { success: true, deletedCount: result.count }
+  } catch (error) {
+    console.error('Error deleting auto-marked weekly offs:', error)
+    return { success: false, error: 'Failed to delete auto-marked weekly offs' }
   }
 }
