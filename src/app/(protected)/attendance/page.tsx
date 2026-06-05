@@ -261,7 +261,7 @@ export default function AttendancePage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg sm:text-xl">{editingAttendance ? 'Edit Attendance' : 'Add Attendance'}</DialogTitle>
             <DialogDescription className="text-sm sm:text-base">
@@ -280,6 +280,7 @@ export default function AttendancePage() {
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                     required
+                    className="w-full"
                   />
                 </div>
                 <div className="space-y-2">
@@ -288,7 +289,7 @@ export default function AttendancePage() {
                     value={formData.status}
                     onValueChange={(value) => setFormData({ ...formData, status: value })}
                   >
-                    <SelectTrigger id="status">
+                    <SelectTrigger id="status" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -310,6 +311,7 @@ export default function AttendancePage() {
                     type="time"
                     value={formData.inTime}
                     onChange={(e) => setFormData({ ...formData, inTime: e.target.value })}
+                    className="w-full"
                   />
                 </div>
                 <div className="space-y-2">
@@ -319,6 +321,7 @@ export default function AttendancePage() {
                     type="time"
                     value={formData.outTime}
                     onChange={(e) => setFormData({ ...formData, outTime: e.target.value })}
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -330,6 +333,7 @@ export default function AttendancePage() {
                   value={formData.remarks}
                   onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
                   placeholder="Optional notes"
+                  className="w-full"
                 />
               </div>
             </div>

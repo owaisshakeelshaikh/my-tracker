@@ -78,12 +78,6 @@ export function getMonthStats(attendances: Attendance[], settings: Settings) {
 
     stats.totalWorkedHours += workedHours
 
-    if (difference > 0) {
-      stats.extraHours += difference
-    } else {
-      stats.missingHours += Math.abs(difference)
-    }
-
     switch (attendance.status) {
       case 'Present':
         stats.present++
@@ -102,6 +96,18 @@ export function getMonthStats(attendances: Attendance[], settings: Settings) {
         break
     }
   })
+
+  // Calculate net overtime/missing at the end (overtime offsets missing hours)
+  const totalRequiredHours = attendances.length * settings.requiredHours
+  const netDifference = stats.totalWorkedHours - totalRequiredHours
+
+  if (netDifference > 0) {
+    stats.extraHours = netDifference
+    stats.missingHours = 0
+  } else {
+    stats.extraHours = 0
+    stats.missingHours = Math.abs(netDifference)
+  }
 
   return stats
 }
