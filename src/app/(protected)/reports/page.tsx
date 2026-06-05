@@ -26,6 +26,7 @@ export default function ReportsPage() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   const fetchAttendances = useCallback(async () => {
     try {
@@ -41,6 +42,13 @@ export default function ReportsPage() {
     fetchAttendances()
   }, [fetchAttendances])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   const formatTime = (timeStr: string) => {
     const [hours, minutes] = timeStr.split(':').map(Number)
     const date = new Date(0, 0, 0, hours, minutes)
@@ -54,6 +62,16 @@ export default function ReportsPage() {
     const inDate = new Date(0, 0, 0, inHours, inMinutes)
     const outDate = new Date(0, 0, 0, outHours, outMinutes)
     const hours = (outDate.getTime() - inDate.getTime()) / (1000 * 60 * 60)
+    return hours
+  }
+
+  const calculateOngoingHours = (attendance: Attendance) => {
+    if (!attendance.inTime) return 0
+    const [inHours, inMinutes] = attendance.inTime.split(':').map(Number)
+    const inDate = new Date(0, 0, 0, inHours, inMinutes)
+    const now = new Date()
+    const nowDate = new Date(0, 0, 0, now.getHours(), now.getMinutes(), now.getSeconds())
+    const hours = (nowDate.getTime() - inDate.getTime()) / (1000 * 60 * 60)
     return hours
   }
 
@@ -340,9 +358,14 @@ export default function ReportsPage() {
                 <div className="text-sm text-muted-foreground">{selectedAttendance.status}</div>
               </div>
               <div>
-                <div className="text-sm font-medium">Worked Hours</div>
+                <div className="text-sm font-medium">
+                  {selectedAttendance.inTime && !selectedAttendance.outTime ? 'Ongoing Hours' : 'Worked Hours'}
+                </div>
                 <div className="text-sm text-muted-foreground">
-                  {formatHours(calculateWorkedHours(selectedAttendance))}
+                  {selectedAttendance.inTime && !selectedAttendance.outTime
+                    ? formatHours(calculateOngoingHours(selectedAttendance))
+                    : formatHours(calculateWorkedHours(selectedAttendance))
+                  }
                 </div>
               </div>
               {selectedAttendance.remarks && (

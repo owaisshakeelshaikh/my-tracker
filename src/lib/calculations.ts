@@ -76,7 +76,12 @@ export function getMonthStats(attendances: Attendance[], settings: Settings) {
     const workedHours = calculateWorkedHours(attendance)
     const difference = calculateHourDifference(workedHours, settings.requiredHours)
 
-    stats.totalWorkedHours += workedHours
+    // Count Holiday and Paid Leave as full working days (no deduction)
+    if (attendance.status === 'Holiday' || attendance.status === 'Paid Leave') {
+      stats.totalWorkedHours += settings.requiredHours
+    } else {
+      stats.totalWorkedHours += workedHours
+    }
 
     switch (attendance.status) {
       case 'Present':
