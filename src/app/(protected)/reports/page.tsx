@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { format } from 'date-fns'
-import { Download, FileSpreadsheet, FileText } from 'lucide-react'
+import { Download, FileSpreadsheet, FileText, Clock, Calendar as CalendarIcon } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { formatHours } from '@/lib/utils'
 
@@ -23,6 +24,8 @@ export default function ReportsPage() {
   const [attendances, setAttendances] = useState<Attendance[]>([])
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const fetchAttendances = useCallback(async () => {
     try {
@@ -118,6 +121,13 @@ export default function ReportsPage() {
   }
 
   const calendar = generateCalendar()
+
+  const handleDateClick = (attendance: Attendance | null | undefined) => {
+    if (attendance) {
+      setSelectedAttendance(attendance)
+      setIsDialogOpen(true)
+    }
+  }
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -222,7 +232,8 @@ export default function ReportsPage() {
                     return (
                       <div
                         key={index}
-                        className={`p-1 rounded border ${statusColor} min-h-[50px] sm:min-h-[80px]`}
+                        className={`p-1 rounded border ${statusColor} min-h-[50px] sm:min-h-[80px] cursor-pointer hover:opacity-80 transition-opacity`}
+                        onClick={() => handleDateClick(attendance)}
                       >
                         <div className="font-semibold text-[10px] sm:text-xs">{day}</div>
                         {attendance && (
@@ -230,7 +241,12 @@ export default function ReportsPage() {
                             <div className="truncate">{attendance.status}</div>
                             {attendance.inTime && (
                               <div className="truncate">
-                                {formatTime(attendance.inTime)}
+                                In: {formatTime(attendance.inTime)}
+                              </div>
+                            )}
+                            {attendance.outTime && (
+                              <div className="truncate">
+                                Out: {formatTime(attendance.outTime)}
                               </div>
                             )}
                           </div>
@@ -287,6 +303,58 @@ export default function ReportsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Attendance Details</DialogTitle>
+          </DialogHeader>
+          {selectedAttendance && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <div className="text-sm font-medium">Date</div>
+                  <div className="text-sm text-muted-foreground">
+                    {format(new Date(selectedAttendance.date), 'EEEE, MMMM d, yyyy')}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+                <div className="flex-1">
+                  <div className="text-sm font-medium">Check-in Time</div>
+                  <div className="text-sm text-muted-foreground">
+                    {selectedAttendance.inTime ? formatTime(selectedAttendance.inTime) : '-'}
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium">Check-out Time</div>
+                  <div className="text-sm text-muted-foreground">
+                    {selectedAttendance.outTime ? formatTime(selectedAttendance.outTime) : '-'}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium">Status</div>
+                <div className="text-sm text-muted-foreground">{selectedAttendance.status}</div>
+              </div>
+              <div>
+                <div className="text-sm font-medium">Worked Hours</div>
+                <div className="text-sm text-muted-foreground">
+                  {formatHours(calculateWorkedHours(selectedAttendance))}
+                </div>
+              </div>
+              {selectedAttendance.remarks && (
+                <div>
+                  <div className="text-sm font-medium">Remarks</div>
+                  <div className="text-sm text-muted-foreground">{selectedAttendance.remarks}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

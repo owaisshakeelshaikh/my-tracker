@@ -2,16 +2,18 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Moon, Sun, Menu, X, LogOut } from 'lucide-react'
+import { Moon, Sun, Menu, X, LogOut, RefreshCw } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { logout } from '@/app/actions/auth'
 
 export function Navigation() {
   const pathname = usePathname()
+  const router = useRouter()
   const { theme, setTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -22,6 +24,12 @@ export function Navigation() {
 
   const handleLogout = async () => {
     await logout()
+  }
+
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    router.refresh()
+    setTimeout(() => setIsRefreshing(false), 500)
   }
 
   return (
@@ -47,6 +55,17 @@ export function Navigation() {
           </div>
           
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              title="Refresh"
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="sr-only">Refresh</span>
+            </Button>
+            
             <Button
               variant="outline"
               size="icon"
@@ -96,6 +115,18 @@ export function Navigation() {
                   </Button>
                 </Link>
               ))}
+              <Button
+                variant="ghost"
+                className="w-full justify-start h-10"
+                onClick={() => {
+                  handleRefresh()
+                  setMobileMenuOpen(false)
+                }}
+                disabled={isRefreshing}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
               <Button
                 variant="ghost"
                 className="w-full justify-start h-10 text-destructive hover:text-destructive"
