@@ -121,6 +121,8 @@ export async function deleteAttendance(id: number) {
 
 export async function autoMarkWeeklyOff(year: number, month: number) {
   try {
+    await deleteAutoMarkedWeeklyOffs()
+
     const settings = await prisma.settings.findFirst()
     if (!settings) {
       return { success: false, error: 'Settings not found' }
@@ -136,32 +138,32 @@ export async function autoMarkWeeklyOff(year: number, month: number) {
     for (let i = 0; i <= 7; i++) {
       const checkDate = new Date(today)
       checkDate.setDate(today.getDate() - i)
-      
+
       if (checkDate.getDay() === weeklyOffDay) {
-        try {
+        const dayStart = startOfDay(checkDate)
+        const dayEnd = endOfDay(checkDate)
+        const existing = await prisma.attendance.findFirst({
+          where: {
+            date: {
+              gte: dayStart,
+              lte: dayEnd,
+            },
+          },
+        })
+
+        if (!existing) {
           await prisma.attendance.create({
             data: {
-              date: startOfDay(checkDate),
+              date: dayStart,
               status: 'Holiday',
               remarks: 'Weekly Off',
             },
           })
           markedCount++
-        } catch (error: any) {
-          // Ignore unique constraint errors (record already exists)
-          if (error.code !== 'P2002') {
-            throw error
-          }
         }
       }
     }
 
-    if (markedCount > 0) {
-      revalidatePath('/attendance')
-      revalidatePath('/dashboard')
-      revalidatePath('/reports')
-    }
-    
     return { success: true, markedCount }
   } catch (error) {
     console.error('Error auto-marking weekly off:', error)
@@ -234,10 +236,40 @@ export async function importDatabase(data: any) {
 
 export async function deleteAutoMarkedWeeklyOffs() {
   try {
-    const result = await prisma.attendance.deleteMany({
+    const weeklyOffs = await prisma.attendance.findMany({
       where: {
         status: 'Holiday',
         remarks: 'Weekly Off',
+      },
+      orderBy: [
+        { date: 'asc' },
+        { id: 'asc' },
+      ],
+    })
+
+    const seenDates = new Set<string>()
+    const duplicateIds: number[] = []
+
+    weeklyOffs.forEach((attendance) => {
+      const dateKey = startOfDay(attendance.date).toISOString()
+
+      if (seenDates.has(dateKey)) {
+        duplicateIds.push(attendance.id)
+        return
+      }
+
+      seenDates.add(dateKey)
+    })
+
+    if (duplicateIds.length === 0) {
+      return { success: true, deletedCount: 0 }
+    }
+
+    const result = await prisma.attendance.deleteMany({
+      where: {
+        id: {
+          in: duplicateIds,
+        },
       },
     })
 
@@ -249,5 +281,104 @@ export async function deleteAutoMarkedWeeklyOffs() {
   } catch (error) {
     console.error('Error deleting auto-marked weekly offs:', error)
     return { success: false, error: 'Failed to delete auto-marked weekly offs' }
+  }
+}
+
+export async function checkIn() {
+  try {
+    const today = startOfDay(new Date())
+    const now = new Date()
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+
+    // Check if attendance already exists for today
+    const existing = await prisma.attendance.findUnique({
+      where: { date: today },
+    })
+
+    if (existing) {
+      if (existing.inTime) {
+        return { success: false, error: 'Already checked in today' }
+      }
+      // Update existing record without inTime
+      const attendance = await prisma.attendance.update({
+        where: { id: existing.id },
+        data: { inTime: currentTime },
+      })
+      revalidatePath('/attendance')
+      revalidatePath('/dashboard')
+      revalidatePath('/reports')
+      return { success: true, attendance }
+    }
+
+    // Create new attendance record
+    const attendance = await prisma.attendance.create({
+      data: {
+        date: today,
+        inTime: currentTime,
+        status: 'Present',
+      },
+    })
+
+    revalidatePath('/attendance')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+
+    return { success: true, attendance }
+  } catch (error) {
+    console.error('Error checking in:', error)
+    return { success: false, error: 'Failed to check in' }
+  }
+}
+
+export async function checkOut() {
+  try {
+    const today = startOfDay(new Date())
+    const now = new Date()
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+
+    // Check if attendance exists for today
+    const existing = await prisma.attendance.findUnique({
+      where: { date: today },
+    })
+
+    if (!existing) {
+      return { success: false, error: 'No attendance record for today. Please check in first.' }
+    }
+
+    if (!existing.inTime) {
+      return { success: false, error: 'Please check in first' }
+    }
+
+    if (existing.outTime) {
+      return { success: false, error: 'Already checked out today' }
+    }
+
+    // Update attendance with outTime
+    const attendance = await prisma.attendance.update({
+      where: { id: existing.id },
+      data: { outTime: currentTime },
+    })
+
+    revalidatePath('/attendance')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+
+    return { success: true, attendance }
+  } catch (error) {
+    console.error('Error checking out:', error)
+    return { success: false, error: 'Failed to check out' }
+  }
+}
+
+export async function getTodayAttendance() {
+  try {
+    const today = startOfDay(new Date())
+    const attendance = await prisma.attendance.findUnique({
+      where: { date: today },
+    })
+    return attendance
+  } catch (error) {
+    console.error('Error fetching today attendance:', error)
+    return null
   }
 }
