@@ -4,14 +4,15 @@ import { getMonthStats, calculateSalaryStats, calculateTotalRequiredHours, calcu
 import { formatCurrency, formatHours } from '@/lib/utils'
 import { format } from 'date-fns'
 import { DashboardContent } from '@/components/dashboard-content'
+import { CheckInOut } from '@/components/check-in-out'
 
 export default async function DashboardPage() {
   const settings = await getSettings()
   const now = new Date()
-  
+
   // Auto-mark weekly off if today is the weekly off day
   await autoMarkWeeklyOff(now.getFullYear(), now.getMonth())
-  
+
   const attendances = await getAttendanceByMonth(now.getFullYear(), now.getMonth())
   const stats = getMonthStats(attendances, settings)
   const salaryStats = calculateSalaryStats(stats, settings, now.getFullYear(), now.getMonth())
@@ -97,13 +98,16 @@ export default async function DashboardPage() {
   ]
 
   return (
-    <DashboardContent
-      cards={cards}
-      salaryCards={salaryCards}
-      stats={stats}
-      salaryStats={salaryStats}
-      settings={settings}
-      now={now}
-    />
+    <>
+      <CheckInOut />
+      <DashboardContent
+        cards={cards}
+        salaryCards={salaryCards}
+        stats={stats}
+        salaryStats={salaryStats}
+        settings={settings}
+        now={now}
+      />
+    </>
   )
 }
