@@ -273,10 +273,6 @@ export async function deleteAutoMarkedWeeklyOffs() {
       },
     })
 
-    revalidatePath('/attendance')
-    revalidatePath('/dashboard')
-    revalidatePath('/reports')
-    
     return { success: true, deletedCount: result.count }
   } catch (error) {
     console.error('Error deleting auto-marked weekly offs:', error)
@@ -288,7 +284,7 @@ export async function checkIn() {
   try {
     const today = startOfDay(new Date())
     const now = new Date()
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    const currentTime = `${now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}`
 
     // Check if attendance already exists for today
     const existing = await prisma.attendance.findUnique({
@@ -334,7 +330,7 @@ export async function checkOut() {
   try {
     const today = startOfDay(new Date())
     const now = new Date()
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    const currentTime = `${now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}`
 
     // Check if attendance exists for today
     const existing = await prisma.attendance.findUnique({
