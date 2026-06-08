@@ -1,5 +1,5 @@
 import { getSettings } from '@/app/actions/settings'
-import { getAttendanceByMonth, autoMarkWeeklyOff } from '@/app/actions/attendance'
+import { getAttendanceByMonth } from '@/app/actions/attendance'
 import { getMonthStats, calculateSalaryStats, calculateTotalRequiredHours, calculateHoursLeft } from '@/lib/calculations'
 import { formatCurrency, formatHours } from '@/lib/utils'
 import { format } from 'date-fns'
@@ -8,9 +8,6 @@ import { DashboardContent } from '@/components/dashboard-content'
 export default async function DashboardPage() {
   const settings = await getSettings()
   const now = new Date()
-
-  // Auto-mark weekly off if today is the weekly off day
-  await autoMarkWeeklyOff(now.getFullYear(), now.getMonth())
 
   const attendances = await getAttendanceByMonth(now.getFullYear(), now.getMonth())
   const stats = getMonthStats(attendances, settings)
