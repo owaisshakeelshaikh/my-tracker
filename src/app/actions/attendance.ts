@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { startOfDay, endOfDay } from 'date-fns'
+import { startOfDay } from 'date-fns'
 
 export async function getAttendanceByMonth(year: number, month: number) {
   try {
@@ -141,14 +141,8 @@ export async function autoMarkWeeklyOff(year: number, month: number) {
 
       if (checkDate.getDay() === weeklyOffDay) {
         const dayStart = startOfDay(checkDate)
-        const dayEnd = endOfDay(checkDate)
-        const existing = await prisma.attendance.findFirst({
-          where: {
-            date: {
-              gte: dayStart,
-              lte: dayEnd,
-            },
-          },
+        const existing = await prisma.attendance.findUnique({
+          where: { date: dayStart },
         })
 
         if (!existing) {
@@ -236,40 +230,10 @@ export async function importDatabase(data: any) {
 
 export async function deleteAutoMarkedWeeklyOffs() {
   try {
-    const weeklyOffs = await prisma.attendance.findMany({
+    const result = await prisma.attendance.deleteMany({
       where: {
         status: 'Holiday',
         remarks: 'Weekly Off',
-      },
-      orderBy: [
-        { date: 'asc' },
-        { id: 'asc' },
-      ],
-    })
-
-    const seenDates = new Set<string>()
-    const duplicateIds: number[] = []
-
-    weeklyOffs.forEach((attendance) => {
-      const dateKey = startOfDay(attendance.date).toISOString()
-
-      if (seenDates.has(dateKey)) {
-        duplicateIds.push(attendance.id)
-        return
-      }
-
-      seenDates.add(dateKey)
-    })
-
-    if (duplicateIds.length === 0) {
-      return { success: true, deletedCount: 0 }
-    }
-
-    const result = await prisma.attendance.deleteMany({
-      where: {
-        id: {
-          in: duplicateIds,
-        },
       },
     })
 

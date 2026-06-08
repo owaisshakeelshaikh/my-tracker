@@ -36,19 +36,6 @@ export default function AttendancePage() {
 
   const statusOptions = ['Present', 'Holiday', 'Paid Leave', 'Unpaid Leave', 'WFH']
 
-  const autoMarkWeeklyOff = async () => {
-    try {
-      const today = new Date()
-      await fetch('/api/attendance/auto-mark-weekly-off', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ year: today.getFullYear(), month: today.getMonth() }),
-      })
-    } catch (error) {
-      console.error('Error auto-marking weekly off:', error)
-    }
-  }
-
   const fetchAttendances = useCallback(async () => {
     try {
       const response = await fetch(`/api/attendance?month=${selectedMonth}&year=${selectedYear}`)
@@ -60,7 +47,6 @@ export default function AttendancePage() {
   }, [selectedMonth, selectedYear])
 
   useEffect(() => {
-    autoMarkWeeklyOff()
     fetchAttendances()
   }, [fetchAttendances])
 
