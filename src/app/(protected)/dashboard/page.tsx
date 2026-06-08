@@ -4,7 +4,6 @@ import { getMonthStats, calculateSalaryStats, calculateTotalRequiredHours, calcu
 import { formatCurrency, formatHours } from '@/lib/utils'
 import { format } from 'date-fns'
 import { DashboardContent } from '@/components/dashboard-content'
-import { CheckInOut } from '@/components/check-in-out'
 
 export default async function DashboardPage() {
   const settings = await getSettings()
@@ -98,9 +97,7 @@ export default async function DashboardPage() {
   ]
 
   return (
-    <>
-      <CheckInOut />
-      <DashboardContent
+    <DashboardContent
         cards={cards}
         salaryCards={salaryCards}
         stats={stats}
@@ -108,6 +105,5 @@ export default async function DashboardPage() {
         settings={settings}
         now={now}
       />
-    </>
   )
 }
