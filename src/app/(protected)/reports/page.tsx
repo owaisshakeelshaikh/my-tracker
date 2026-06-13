@@ -27,6 +27,7 @@ export default function ReportsPage() {
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [settings, setSettings] = useState<any>(null)
 
   const fetchAttendances = useCallback(async () => {
     try {
@@ -38,9 +39,20 @@ export default function ReportsPage() {
     }
   }, [selectedMonth, selectedYear])
 
+  const fetchSettings = useCallback(async () => {
+    try {
+      const response = await fetch('/api/settings')
+      const data = await response.json()
+      setSettings(data)
+    } catch (error) {
+      console.error('Error fetching settings:', error)
+    }
+  }, [])
+
   useEffect(() => {
     fetchAttendances()
-  }, [fetchAttendances])
+    fetchSettings()
+  }, [fetchAttendances, fetchSettings])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -96,18 +108,86 @@ export default function ReportsPage() {
   }
 
   const exportToExcel = () => {
-    const data = attendances.map((a) => ({
-      Date: format(new Date(a.date), 'yyyy-MM-dd'),
+    // Calculate attendance summary
+    const presentDays = attendances.filter(a => a.status === 'Present').length
+    const holidayDays = attendances.filter(a => a.status === 'Holiday').length
+    const paidLeaveDays = attendances.filter(a => a.status === 'Paid Leave').length
+    const unpaidLeaveDays = attendances.filter(a => a.status === 'Unpaid Leave').length
+    const wfhDays = attendances.filter(a => a.status === 'WFH').length
+    
+    const totalWorkedHours = attendances.reduce((sum, a) => sum + calculateWorkedHours(a), 0)
+    const totalRequiredHours = presentDays * (settings?.requiredHours || 9)
+    const hoursLeft = totalRequiredHours - totalWorkedHours
+    const overtimeHours = totalWorkedHours > totalRequiredHours ? totalWorkedHours - totalRequiredHours : 0
+    const missingHours = totalWorkedHours < totalRequiredHours ? totalRequiredHours - totalWorkedHours : 0
+
+    // Calculate salary summary
+    const monthlySalary = settings?.monthlySalary || 50000
+    const hourlyRate = monthlySalary / (30 * (settings?.requiredHours || 9))
+    const earnedSalary = (totalWorkedHours * hourlyRate) + (paidLeaveDays * (monthlySalary / 30))
+    const deduction = unpaidLeaveDays * (monthlySalary / 30)
+    const finalSalary = earnedSalary - deduction
+
+    // Attendance data
+    const attendanceData = attendances.map((a) => ({
+      Date: format(new Date(a.date), 'dd MMM yyyy'),
+      Day: format(new Date(a.date), 'EEEE'),
       'In Time': a.inTime ? formatTime(a.inTime) : '-',
       'Out Time': a.outTime ? formatTime(a.outTime) : '-',
       Status: a.status,
       Remarks: a.remarks || '-',
-      'Worked Hours': calculateWorkedHours(a),
+      'Worked Hours': calculateWorkedHours(a).toFixed(2),
     }))
 
-    const ws = XLSX.utils.json_to_sheet(data)
+    // Attendance summary data
+    const summaryData = [
+      { Metric: 'Present Days', Value: presentDays },
+      { Metric: 'Holiday Days', Value: holidayDays },
+      { Metric: 'Paid Leave Days', Value: paidLeaveDays },
+      { Metric: 'Unpaid Leave Days', Value: unpaidLeaveDays },
+      { Metric: 'WFH Days', Value: wfhDays },
+      { Metric: 'Total Worked Hours', Value: totalWorkedHours.toFixed(2) },
+      { Metric: 'Total Required Hours', Value: totalRequiredHours.toFixed(2) },
+      { Metric: 'Hours Left', Value: hoursLeft.toFixed(2) },
+      { Metric: 'Overtime Hours', Value: overtimeHours.toFixed(2) },
+      { Metric: 'Missing Hours', Value: missingHours.toFixed(2) },
+    ]
+
+    // Salary summary data
+    const salaryData = [
+      { Metric: 'Monthly Salary', Value: `${settings?.currency || '₹'} ${monthlySalary.toFixed(2)}` },
+      { Metric: 'Hourly Rate', Value: `${settings?.currency || '₹'} ${hourlyRate.toFixed(2)}` },
+      { Metric: 'Earned Salary', Value: `${settings?.currency || '₹'} ${earnedSalary.toFixed(2)}` },
+      { Metric: 'Deductions (Unpaid Leave)', Value: `${settings?.currency || '₹'} ${deduction.toFixed(2)}` },
+      { Metric: 'Final Salary', Value: `${settings?.currency || '₹'} ${finalSalary.toFixed(2)}` },
+    ]
+
+    // Create workbook
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Attendance')
+
+    // Attendance sheet
+    const attendanceWs = XLSX.utils.json_to_sheet(attendanceData)
+    attendanceWs['!cols'] = [
+      { wch: 15 }, // Date
+      { wch: 12 }, // Day
+      { wch: 12 }, // In Time
+      { wch: 12 }, // Out Time
+      { wch: 15 }, // Status
+      { wch: 25 }, // Remarks
+      { wch: 15 }, // Worked Hours
+    ]
+    XLSX.utils.book_append_sheet(wb, attendanceWs, 'Attendance')
+
+    // Summary sheet
+    const summaryWs = XLSX.utils.json_to_sheet(summaryData)
+    summaryWs['!cols'] = [{ wch: 25 }, { wch: 15 }]
+    XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary')
+
+    // Salary sheet
+    const salaryWs = XLSX.utils.json_to_sheet(salaryData)
+    salaryWs['!cols'] = [{ wch: 30 }, { wch: 20 }]
+    XLSX.utils.book_append_sheet(wb, salaryWs, 'Salary')
+
     XLSX.writeFile(wb, `attendance-report-${selectedYear}-${selectedMonth + 1}.xlsx`)
   }
 
