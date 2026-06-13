@@ -19,14 +19,15 @@ model Settings {
 }
 
 model Attendance {
-  id        Int      @id @default(autoincrement())
-  date      DateTime
-  inTime    String?
-  outTime   String?
-  status    String
-  remarks   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  date         DateTime
+  inTime       String?
+  outTime      String?
+  status       String
+  remarks      String?
+  isAutoMarked Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([date])
 }

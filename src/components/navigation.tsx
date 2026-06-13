@@ -28,8 +28,7 @@ export function Navigation() {
 
   const handleRefresh = () => {
     setIsRefreshing(true)
-    router.refresh()
-    setTimeout(() => setIsRefreshing(false), 500)
+    window.location.reload()
   }
 
   return (

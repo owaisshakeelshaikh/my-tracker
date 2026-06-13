@@ -7,7 +7,7 @@ import { startOfDay } from 'date-fns'
 export async function getAttendanceByMonth(year: number, month: number) {
   try {
     const startDate = new Date(year, month, 1)
-    const endDate = new Date(year, month + 1, 0, 23, 59, 59)
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999)
 
     const attendances = await prisma.attendance.findMany({
       where: {
@@ -151,6 +151,7 @@ export async function autoMarkWeeklyOff(year: number, month: number) {
               date: dayStart,
               status: 'Holiday',
               remarks: 'Weekly Off',
+              isAutoMarked: true,
             },
           })
           markedCount++
@@ -203,14 +204,14 @@ export async function importDatabase(data: any) {
       for (const attendance of data.attendances) {
         await prisma.attendance.create({
           data: {
-            ...attendance,
             date: new Date(attendance.date),
-            inTime1: attendance.inTime1 ? new Date(attendance.inTime1) : null,
-            outTime1: attendance.outTime1 ? new Date(attendance.outTime1) : null,
-            inTime2: attendance.inTime2 ? new Date(attendance.inTime2) : null,
-            outTime2: attendance.outTime2 ? new Date(attendance.outTime2) : null,
-            createdAt: new Date(attendance.createdAt),
-            updatedAt: new Date(attendance.updatedAt),
+            inTime: attendance.inTime || null,
+            outTime: attendance.outTime || null,
+            status: attendance.status,
+            remarks: attendance.remarks || null,
+            isAutoMarked: attendance.isAutoMarked || false,
+            createdAt: attendance.createdAt ? new Date(attendance.createdAt) : new Date(),
+            updatedAt: attendance.updatedAt ? new Date(attendance.updatedAt) : new Date(),
           },
         })
       }
@@ -234,6 +235,7 @@ export async function deleteAutoMarkedWeeklyOffs() {
       where: {
         status: 'Holiday',
         remarks: 'Weekly Off',
+        isAutoMarked: true,
       },
     })
 

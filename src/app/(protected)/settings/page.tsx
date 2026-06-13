@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { DollarSign, Clock, Calendar, Eye, EyeOff, Trash2 } from 'lucide-react'
+import { DollarSign, Clock, Calendar, Eye, EyeOff } from 'lucide-react'
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<any>(null)
@@ -53,24 +53,6 @@ export default function SettingsPage() {
     setIsSaving(false)
   }
 
-  const handleCleanupWeeklyOffs = async () => {
-    if (!confirm('Are you sure you want to delete all auto-marked weekly off records? This will remove all Holiday records with "Weekly Off" remarks.')) return
-
-    try {
-      const response = await fetch('/api/attendance/cleanup-weekly-offs', {
-        method: 'POST',
-      })
-      const result = await response.json()
-      if (result.success) {
-        alert(`Successfully deleted ${result.deletedCount} auto-marked weekly off records.`)
-      } else {
-        alert('Failed to cleanup weekly offs')
-      }
-    } catch (error) {
-      console.error('Error cleaning up weekly offs:', error)
-      alert('Error cleaning up weekly offs')
-    }
-  }
 
   if (!settings) {
     return (
@@ -215,28 +197,6 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </div>
-
-        <Card className="mt-6 border border-slate-200 dark:border-slate-800 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg flex items-center gap-2 text-red-600 dark:text-red-400">
-              <Trash2 className="h-5 w-5" />
-              Data Management
-            </CardTitle>
-            <CardDescription className="text-sm text-slate-600 dark:text-slate-400">
-              Remove auto-created weekly off records
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              variant="destructive" 
-              className="w-full sm:w-auto"
-              onClick={handleCleanupWeeklyOffs}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Auto-Marked Weekly Offs
-            </Button>
-          </CardContent>
-        </Card>
 
         <div className="mt-8 flex justify-end">
           <Button 
