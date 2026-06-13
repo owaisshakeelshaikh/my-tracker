@@ -261,7 +261,7 @@ export default function AttendancePage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto sm:rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-lg sm:text-xl">{editingAttendance ? 'Edit Attendance' : 'Add Attendance'}</DialogTitle>
             <DialogDescription className="text-sm sm:text-base">
@@ -270,7 +270,7 @@ export default function AttendancePage() {
           </DialogHeader>
           
           <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 w-full">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="date">Date</Label>
@@ -292,7 +292,7 @@ export default function AttendancePage() {
                     <SelectTrigger id="status" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" align="start" side="bottom">
                       {statusOptions.map((status) => (
                         <SelectItem key={status} value={status}>
                           {status}
@@ -306,23 +306,43 @@ export default function AttendancePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="inTime">In Time</Label>
-                  <Input
-                    id="inTime"
-                    type="time"
-                    value={formData.inTime}
-                    onChange={(e) => setFormData({ ...formData, inTime: e.target.value })}
-                    className="w-full"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="inTime"
+                      type="time"
+                      value={formData.inTime}
+                      onChange={(e) => setFormData({ ...formData, inTime: e.target.value })}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFormData({ ...formData, inTime: '' })}
+                    >
+                      Clear
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="outTime">Out Time</Label>
-                  <Input
-                    id="outTime"
-                    type="time"
-                    value={formData.outTime}
-                    onChange={(e) => setFormData({ ...formData, outTime: e.target.value })}
-                    className="w-full"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="outTime"
+                      type="time"
+                      value={formData.outTime}
+                      onChange={(e) => setFormData({ ...formData, outTime: e.target.value })}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFormData({ ...formData, outTime: '' })}
+                    >
+                      Clear
+                    </Button>
+                  </div>
                 </div>
               </div>
 

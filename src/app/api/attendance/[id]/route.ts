@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateAttendance, deleteAttendance } from '@/app/actions/attendance'
+import { revalidatePath } from 'next/cache'
+
+export const dynamic = 'force-dynamic'
 
 export async function PUT(
   request: NextRequest,
@@ -19,6 +22,8 @@ export async function PUT(
     const result = await updateAttendance(attendanceId, formData)
 
     if (result.success) {
+      revalidatePath('/attendance')
+      revalidatePath('/dashboard')
       return NextResponse.json(result.attendance)
     }
 
@@ -45,6 +50,8 @@ export async function DELETE(
     const result = await deleteAttendance(attendanceId)
 
     if (result.success) {
+      revalidatePath('/attendance')
+      revalidatePath('/dashboard')
       return NextResponse.json({ success: true })
     }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAttendanceByMonth, createAttendance } from '@/app/actions/attendance'
+import { revalidatePath } from 'next/cache'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,6 +15,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -26,6 +29,8 @@ export async function POST(request: NextRequest) {
     const result = await createAttendance(formData)
     
     if (result.success) {
+      revalidatePath('/attendance')
+      revalidatePath('/dashboard')
       return NextResponse.json(result.attendance)
     } else {
       return NextResponse.json({ error: result.error }, { status: 500 })
